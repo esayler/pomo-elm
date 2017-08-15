@@ -1,3 +1,27 @@
 body {
-  font-family: sans-serif;
+  font-family: Helvetica Neue;
+  font-size: 20px;
 }
+
+.title {
+  font-weight: 200;
+  font-size: 2em;
+  
+}
+
+.time-display {
+  margin: 40px 40px;
+}
+
+.time {
+  font-size: 6em;
+  font-weight: 200;
+}
+
+.time-label {
+  font-size: 2em;
+  font-weight: 100;
+}
+
+
+
