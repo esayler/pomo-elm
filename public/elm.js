@@ -8672,8 +8672,6 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$project$App$startTime = 11;
-var _user$project$App$model = {startTime: _user$project$App$startTime, currentTime: _user$project$App$startTime, running: false};
 var _user$project$App$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
@@ -8691,10 +8689,10 @@ var _user$project$App$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{currentTime: _user$project$App$startTime, running: false}),
+						{currentTime: model.startTime, running: false}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'Tick':
 				var running = _elm_lang$core$Native_Utils.eq(model.currentTime, 0) ? false : true;
 				var newTime = running ? (model.currentTime - 1) : model.currentTime;
 				return {
@@ -8704,12 +8702,37 @@ var _user$project$App$update = F2(
 						{currentTime: newTime, running: running}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'Pause':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{running: false}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				var newValue = A2(
+					_elm_lang$core$Result$withDefault,
+					0,
+					_elm_lang$core$String$toInt(_p0._0));
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{startTime: newValue, currentTime: newValue}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
+var _user$project$App$startTime = 11;
+var _user$project$App$model = {startTime: _user$project$App$startTime, currentTime: _user$project$App$startTime, running: false};
 var _user$project$App$Model = F3(
 	function (a, b, c) {
 		return {startTime: a, currentTime: b, running: c};
 	});
+var _user$project$App$Change = function (a) {
+	return {ctor: 'Change', _0: a};
+};
 var _user$project$App$Tick = function (a) {
 	return {ctor: 'Tick', _0: a};
 };
@@ -8717,6 +8740,7 @@ var _user$project$App$subscriptions = function (model) {
 	return model.running ? A2(_elm_lang$core$Time$every, _elm_lang$core$Time$second, _user$project$App$Tick) : _elm_lang$core$Platform_Sub$none;
 };
 var _user$project$App$Reset = {ctor: 'Reset'};
+var _user$project$App$Pause = {ctor: 'Pause'};
 var _user$project$App$Start = {ctor: 'Start'};
 var _user$project$App$view = function (model) {
 	return A2(
@@ -8742,13 +8766,13 @@ var _user$project$App$view = function (model) {
 					_elm_lang$html$Html$div,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('time-display'),
+						_0: _elm_lang$html$Html_Attributes$class('form-container'),
 						_1: {ctor: '[]'}
 					},
 					{
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$span,
+							_elm_lang$html$Html$input,
 							{
 								ctor: '::',
 								_0: _elm_lang$html$Html_Attributes$classList(
@@ -8757,46 +8781,52 @@ var _user$project$App$view = function (model) {
 										_0: {ctor: '_Tuple2', _0: 'time', _1: true},
 										_1: {
 											ctor: '::',
-											_0: {
-												ctor: '_Tuple2',
-												_0: 'warning',
-												_1: (_elm_lang$core$Native_Utils.cmp(model.currentTime, 10) < 0) && (!_elm_lang$core$Native_Utils.eq(model.currentTime, 0))
-											},
+											_0: {ctor: '_Tuple2', _0: 'time-input', _1: true},
 											_1: {
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
-													_0: 'done',
-													_1: _elm_lang$core$Native_Utils.eq(model.currentTime, 0)
+													_0: 'warning',
+													_1: model.running && ((_elm_lang$core$Native_Utils.cmp(model.currentTime, 10) < 0) && (!_elm_lang$core$Native_Utils.eq(model.currentTime, 0)))
 												},
-												_1: {ctor: '[]'}
+												_1: {
+													ctor: '::',
+													_0: {
+														ctor: '_Tuple2',
+														_0: 'done',
+														_1: _elm_lang$core$Native_Utils.eq(model.currentTime, 0)
+													},
+													_1: {ctor: '[]'}
+												}
 											}
 										}
 									}),
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$type_('number'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$defaultValue(
+											_elm_lang$core$Basics$toString(model.startTime)),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$value(
+												_elm_lang$core$Basics$toString(model.currentTime)),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$App$Change),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$disabled(model.running),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}
+								}
 							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									_elm_lang$core$Basics$toString(model.currentTime)),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$span,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('time-label'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('s'),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
@@ -8804,7 +8834,7 @@ var _user$project$App$view = function (model) {
 						_elm_lang$html$Html$div,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('btn-group'),
+							_0: _elm_lang$html$Html_Attributes$class('edit-time-btn-group'),
 							_1: {ctor: '[]'}
 						},
 						{
@@ -8813,17 +8843,18 @@ var _user$project$App$view = function (model) {
 								_elm_lang$html$Html$button,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('btn start-btn'),
+									_0: _elm_lang$html$Html_Attributes$class('btn edit-second-up-btn'),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$name('start'),
+										_0: _elm_lang$html$Html_Attributes$name('second-up'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Start),
+											_0: _elm_lang$html$Html_Events$onClick(
+												_user$project$App$Change(
+													_elm_lang$core$Basics$toString(model.currentTime + 1))),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$disabled(
-													model.running || _elm_lang$core$Native_Utils.eq(model.currentTime, 0)),
+												_0: _elm_lang$html$Html_Attributes$disabled(model.running),
 												_1: {ctor: '[]'}
 											}
 										}
@@ -8831,7 +8862,7 @@ var _user$project$App$view = function (model) {
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('start'),
+									_0: _elm_lang$html$Html$text('up'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -8840,17 +8871,18 @@ var _user$project$App$view = function (model) {
 									_elm_lang$html$Html$button,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('btn reset-btn'),
+										_0: _elm_lang$html$Html_Attributes$class('btn edit-second-down-btn'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$name('reset'),
+											_0: _elm_lang$html$Html_Attributes$name('second-down'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Reset),
+												_0: _elm_lang$html$Html_Events$onClick(
+													_user$project$App$Change(
+														_elm_lang$core$Basics$toString(model.currentTime - 1))),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$disabled(
-														_elm_lang$core$Native_Utils.eq(model.currentTime, model.startTime)),
+													_0: _elm_lang$html$Html_Attributes$disabled(model.running),
 													_1: {ctor: '[]'}
 												}
 											}
@@ -8858,13 +8890,107 @@ var _user$project$App$view = function (model) {
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('reset'),
+										_0: _elm_lang$html$Html$text('down'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {ctor: '[]'}
 							}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('btn-group'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$button,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('btn start-btn'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$name('start'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Start),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$disabled(
+														model.running || _elm_lang$core$Native_Utils.eq(model.currentTime, 0)),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('start'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('btn pause-btn'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$name('pause'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Pause),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$disabled(!model.running),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('pause'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('btn reset-btn'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$name('reset'),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Reset),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$disabled(
+																_elm_lang$core$Native_Utils.eq(model.currentTime, model.startTime)),
+															_1: {ctor: '[]'}
+														}
+													}
+												}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('reset'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});

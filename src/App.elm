@@ -20,8 +20,10 @@ type alias Model =
 
 type Msg
     = Start
+    | Pause
     | Reset
     | Tick Time
+    | Change String
 
 
 model : Model
@@ -35,19 +37,45 @@ model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [ class "title" ] [ text "pomo-elm" ]
-        , div [ class "time-display" ]
-            [ span
+        [ h1
+            [ class "title" ]
+            [ text "pomo-elm" ]
+        , div
+            [ class "form-container" ]
+            [ input
                 [ classList
                     [ ( "time", True )
-                    , ( "warning", model.currentTime < 10 && model.currentTime /= 0 )
+                    , ( "time-input", True )
+                    , ( "warning", model.running && model.currentTime < 10 && model.currentTime /= 0 )
                     , ( "done", model.currentTime == 0 )
                     ]
+                , type_ "number"
+                , defaultValue (toString model.startTime)
+                , value (toString model.currentTime)
+                , onInput Change
+                , disabled model.running
                 ]
-                [ text (toString model.currentTime) ]
-            , span [ class "time-label" ] [ text "s" ]
+                []
             ]
-        , div [ class "btn-group" ]
+        , div
+            [ class "edit-time-btn-group" ]
+            [ button
+                [ class "btn edit-second-up-btn"
+                , name "second-up"
+                , onClick (Change (toString (model.currentTime + 1)))
+                , disabled model.running
+                ]
+                [ text "up" ]
+            , button
+                [ class "btn edit-second-down-btn"
+                , name "second-down"
+                , onClick (Change (toString (model.currentTime - 1)))
+                , disabled model.running
+                ]
+                [ text "down" ]
+            ]
+        , div
+            [ class "btn-group" ]
             [ button
                 [ class "btn start-btn"
                 , name "start"
@@ -55,6 +83,13 @@ view model =
                 , disabled (model.running || model.currentTime == 0)
                 ]
                 [ text "start" ]
+            , button
+                [ class "btn pause-btn"
+                , name "pause"
+                , onClick Pause
+                , disabled (not model.running)
+                ]
+                [ text "pause" ]
             , button
                 [ class "btn reset-btn"
                 , name "reset"
@@ -73,7 +108,7 @@ update msg model =
             ( { model | running = True }, Cmd.none )
 
         Reset ->
-            ( { model | currentTime = startTime, running = False }, Cmd.none )
+            ( { model | currentTime = model.startTime, running = False }, Cmd.none )
 
         Tick time ->
             let
@@ -90,6 +125,16 @@ update msg model =
                         model.currentTime
             in
             ( { model | currentTime = newTime, running = running }, Cmd.none )
+
+        Pause ->
+            ( { model | running = False }, Cmd.none )
+
+        Change inputString ->
+            let
+                newValue =
+                    Result.withDefault 0 (String.toInt inputString)
+            in
+            ( { model | startTime = newValue, currentTime = newValue }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
