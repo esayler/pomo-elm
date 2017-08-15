@@ -4,16 +4,19 @@ body {
 }
 
 .title {
+  margin: 40px 0 0 0;
   font-weight: 200;
   font-size: 2em;
-  
+  text-align: center;
 }
 
 .time-display {
-  margin: 40px 40px;
+  margin: 40px auto;
+  text-align: center;
 }
 
 .time {
+  color: #2c3e50;
   font-size: 6em;
   font-weight: 200;
 }
@@ -24,4 +27,50 @@ body {
 }
 
 
+.warning {
+  animation-name: pulse;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-delay: 0;
+  animation-direction: normal;
+  animation-iteration-count: infinite;
+  animation-fill-mode: none;
+  animation-play-state: running;
+}
 
+@keyframes pulse {
+  0% {
+    color: #c0392b;
+  }
+
+  100% {
+    color: black;
+  }
+}
+
+.done {
+  color: #e74c3c;
+}
+
+.btn-group {
+  text-align: center;
+}
+
+.btn {
+  font-size: 1.25em;
+  font-weight: 200;
+  padding: 10px 20px;
+  background: none;
+  border: 1px solid black;
+  border-radius: 5px;
+  opacity: .5;
+  margin: 20px;
+}
+
+.btn:hover {
+  opacity: 1;
+}
+
+.btn:disabled {
+  opacity: .25;
+}

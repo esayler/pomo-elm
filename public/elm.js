@@ -8672,7 +8672,7 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$project$App$startTime = 30;
+var _user$project$App$startTime = 11;
 var _user$project$App$model = {startTime: _user$project$App$startTime, currentTime: _user$project$App$startTime, running: false};
 var _user$project$App$update = F2(
 	function (msg, model) {
@@ -8751,7 +8751,28 @@ var _user$project$App$view = function (model) {
 							_elm_lang$html$Html$span,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('time'),
+								_0: _elm_lang$html$Html_Attributes$classList(
+									{
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'time', _1: true},
+										_1: {
+											ctor: '::',
+											_0: {
+												ctor: '_Tuple2',
+												_0: 'warning',
+												_1: (_elm_lang$core$Native_Utils.cmp(model.currentTime, 10) < 0) && (!_elm_lang$core$Native_Utils.eq(model.currentTime, 0))
+											},
+											_1: {
+												ctor: '::',
+												_0: {
+													ctor: '_Tuple2',
+													_0: 'done',
+													_1: _elm_lang$core$Native_Utils.eq(model.currentTime, 0)
+												},
+												_1: {ctor: '[]'}
+											}
+										}
+									}),
 								_1: {ctor: '[]'}
 							},
 							{
@@ -8780,49 +8801,70 @@ var _user$project$App$view = function (model) {
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$button,
+						_elm_lang$html$Html$div,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('start-btn'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$name('start'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Start),
-									_1: {ctor: '[]'}
-								}
-							}
+							_0: _elm_lang$html$Html_Attributes$class('btn-group'),
+							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('start'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$button,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('reset-btn'),
-								_1: {
+							_0: A2(
+								_elm_lang$html$Html$button,
+								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$name('reset'),
+									_0: _elm_lang$html$Html_Attributes$class('btn start-btn'),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Reset),
-										_1: {ctor: '[]'}
+										_0: _elm_lang$html$Html_Attributes$name('start'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Start),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$disabled(
+													model.running || _elm_lang$core$Native_Utils.eq(model.currentTime, 0)),
+												_1: {ctor: '[]'}
+											}
+										}
 									}
-								}
-							},
-							{
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('start'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('reset'),
+								_0: A2(
+									_elm_lang$html$Html$button,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('btn reset-btn'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$name('reset'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(_user$project$App$Reset),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$disabled(
+														_elm_lang$core$Native_Utils.eq(model.currentTime, model.startTime)),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('reset'),
+										_1: {ctor: '[]'}
+									}),
 								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					}
+							}
+						}),
+					_1: {ctor: '[]'}
 				}
 			}
 		});

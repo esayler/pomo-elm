@@ -8,7 +8,7 @@ import Time exposing (..)
 
 startTime : Int
 startTime =
-    30
+    11
 
 
 type alias Model =
@@ -37,21 +37,32 @@ view model =
     div []
         [ h1 [ class "title" ] [ text "pomo-elm" ]
         , div [ class "time-display" ]
-            [ span [ class "time" ] [ text (toString model.currentTime) ]
+            [ span
+                [ classList
+                    [ ( "time", True )
+                    , ( "warning", model.currentTime < 10 && model.currentTime /= 0 )
+                    , ( "done", model.currentTime == 0 )
+                    ]
+                ]
+                [ text (toString model.currentTime) ]
             , span [ class "time-label" ] [ text "s" ]
             ]
-        , button
-            [ class "start-btn"
-            , name "start"
-            , onClick Start
+        , div [ class "btn-group" ]
+            [ button
+                [ class "btn start-btn"
+                , name "start"
+                , onClick Start
+                , disabled (model.running || model.currentTime == 0)
+                ]
+                [ text "start" ]
+            , button
+                [ class "btn reset-btn"
+                , name "reset"
+                , onClick Reset
+                , disabled (model.currentTime == model.startTime)
+                ]
+                [ text "reset" ]
             ]
-            [ text "start" ]
-        , button
-            [ class "reset-btn"
-            , name "reset"
-            , onClick Reset
-            ]
-            [ text "reset" ]
         ]
 
 
