@@ -39,6 +39,8 @@ type alias Model =
 type Msg
     = Start
     | Set Int
+    | Increment TimeUnit
+    | Decrement TimeUnit
     | Pause
     | Reset
     | Tick Time
@@ -48,6 +50,11 @@ type Msg
 type Direction
     = Up
     | Down
+
+
+type TimeUnit
+    = Min
+    | Sec
 
 
 model : Model
@@ -63,72 +70,82 @@ model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ class "app" ]
         [ h1
             [ class "title" ]
-            [ text "pomo-elm" ]
+            [ span
+                [ class "title-pomo" ]
+                [ text "pomo" ]
+            , span
+                [ class "title-dash" ]
+                [ text "." ]
+            , span
+                [ class "title-elm" ]
+                [ text "elm" ]
+            ]
         , timeSelector model
         , div
             [ class "time-display-container" ]
             (List.concat
-                [ timeEditable model
-                , timeButton Up "edit-min-up-btn" "min-up" "+1m" 60 model
-                , timeButton Up "edit-sec-up-btn" "second-up" "+1s" 1 model
+                [ [ timeButton (Increment Min) "edit-min-up-btn" "min-up" "+1m" (model.currentTime >= 999 * 60)
+                  , timeButton (Increment Sec) "edit-sec-up-btn" "second-up" "+1s" (model.currentTime >= 1000 * 60)
+                  ]
                 , displayTime model
-                , timeButton Down "edit-min-down-btn" "min-down" "-1m" 60 model
-                , timeButton Down "edit-sec-down-btn" "sec-down" "-1s" 1 model
+                , [ timeButton (Decrement Min) "edit-min-down-btn" "min-down" "-1m" (model.currentTime <= 60)
+                  , timeButton (Decrement Sec) "edit-sec-down-btn" "sec-down" "-1s" (model.currentTime <= 0)
+                  , timeEditable model
+                  ]
                 ]
             )
         , div
             [ class "btn-group controls" ]
-            [ button
-                [ class "btn btn-large start-btn"
-                , name "start"
-                , onClick Start
-                , disabled (model.running || model.currentTime == 0)
-                ]
-                [ text "start" ]
-            , button
-                [ class "btn btn-large pause-btn"
-                , name "pause"
-                , onClick Pause
-                , disabled (not model.running)
-                ]
-                [ text "pause" ]
-            , button
-                [ class "btn btn-large reset-btn"
-                , name "reset"
-                , onClick Reset
-                , disabled (model.currentTime == model.initialTime)
-                ]
-                [ text "reset" ]
+            [ controlButton Reset (messageToString Reset) (model.currentTime == model.initialTime)
+            , controlButton Pause (messageToString Pause) (not model.running)
+            , controlButton Start (messageToString Start) (model.running || model.currentTime == 0)
             ]
         ]
 
 
-timeButton : Direction -> String -> String -> String -> Int -> Model -> List (Html Msg)
-timeButton direction className nameString textString amt model =
-    let
-        newTime =
-            case direction of
-                Up ->
-                    model.currentTime + amt
+messageToString : Msg -> String
+messageToString msg =
+    case msg of
+        Start ->
+            "start"
 
-                Down ->
-                    model.currentTime - amt
-    in
-    [ button
+        Pause ->
+            "pause"
+
+        Reset ->
+            "reset"
+
+        _ ->
+            ""
+
+
+controlButton : Msg -> String -> Bool -> Html Msg
+controlButton msg name disable =
+    button
+        [ class ("btn btn-large " ++ name ++ "-btn")
+        , onClick msg
+        , disabled disable
+        ]
+        [ text name ]
+
+
+timeButton : Msg -> String -> String -> String -> Bool -> Html Msg
+timeButton msg className nameString textString disable =
+    button
         [ class ("btn edit-btn " ++ className)
         , name nameString
-        , onClick (Change (toString newTime))
+        , onClick msg
+        , disabled disable
         ]
         [ text textString ]
-    ]
 
 
-timeEditable : Model -> List (Html Msg)
+timeEditable : Model -> Html Msg
 timeEditable model =
-    [ input
+    input
         [ classList
             [ ( "time", True )
             , ( "time-input", True )
@@ -142,7 +159,6 @@ timeEditable model =
         , disabled model.running
         ]
         []
-    ]
 
 
 timeSelector : Model -> Html Msg
@@ -150,7 +166,7 @@ timeSelector model =
     div
         [ class "time-selector" ]
         [ div
-            [ class "btn-group" ]
+            [ class "btn-group controls" ]
             [ button
                 [ class "btn set-time-btn"
                 , name "set-work-time"
@@ -213,10 +229,22 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Start ->
-            ( { model | running = True }, Cmd.none )
+            ( { model | initialTime = model.currentTime, running = True }, Cmd.none )
 
         Set seconds ->
-            ( { model | initialTime = seconds, currentTime = seconds }, Cmd.none )
+            ( { model | initialTime = seconds, currentTime = seconds, running = False }, Cmd.none )
+
+        Increment Sec ->
+            ( { model | currentTime = model.currentTime + 1 }, Cmd.none )
+
+        Decrement Sec ->
+            ( { model | currentTime = model.currentTime - 1 }, Cmd.none )
+
+        Increment Min ->
+            ( { model | currentTime = model.currentTime + 60 }, Cmd.none )
+
+        Decrement Min ->
+            ( { model | currentTime = model.currentTime - 60 }, Cmd.none )
 
         Reset ->
             ( { model | currentTime = model.initialTime, running = False }, Cmd.none )
@@ -224,10 +252,7 @@ update msg model =
         Tick time ->
             let
                 running =
-                    if model.currentTime == 0 then
-                        False
-                    else
-                        True
+                    model.currentTime /= 0
 
                 newTime =
                     if running then

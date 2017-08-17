@@ -1,14 +1,26 @@
-body {
+.app {
   font-family: Helvetica Neue;
   font-size: 20px;
 }
 
 .title {
-  margin: 40px 0 0 0;
-  font-weight: 200;
-  font-size: 2em;
+  margin: 20px;
+  font-size: 3em;
   text-align: center;
 }
+
+.title-pomo {
+   font-weight: 400; 
+}
+
+.title-dash {
+   font-weight: 400; 
+}
+
+.title-elm {
+   font-weight: 100; 
+}
+
 
 .form-container {
   text-align: center;
@@ -24,17 +36,6 @@ body {
   color: #2c3e50;
   font-size: 6em;
   font-weight: 200;
-}
-
-.time-input {
-  grid-row: 1 / 2;
-  grid-column: 2 / 5;
-  font-size: 2em;
-  font-weight: 200;
-  text-align: center;
-  width: 50%;
-  margin: 0 auto;
-  padding: 20px;
 }
 
 .warning {
@@ -84,7 +85,10 @@ body {
 }
 
 .btn-group {
-  text-align: center;
+  margin: 0 20px;
+  display: flex;
+  align-content: center;
+  justify-content: center;
 }
 
 .edit-time-btn-group {
@@ -107,9 +111,10 @@ body {
 }
 
 .btn-large {
-  font-size: 2.5em;
+  font-size: 2em;
   font-weight: 200;
-  padding: 20px 40px;
+  padding: 12px 40px;
+
 }
 
 .btn:hover {
@@ -142,11 +147,13 @@ body {
 
 
 .time-display-container {
+  padding: 40px;
+  max-width: 500px;
+  margin: 40px auto;
   display: grid;
   grid-gap: 5px;
   grid-template-columns: 20px 200px 20px 200px 20px;
-  grid-template-rows: 75px 50px 150px 50px; 
-  grid-auto-rows: auto;  
+  grid-template-rows: 0 50px 150px 50px; 
   align-items: center;
   justify-content: center;
 }
@@ -206,16 +213,76 @@ body {
   font-weight: 100;
 }
 
+
+.time-input {
+  display: none;
+  grid-row: 5 / 6;
+  grid-column: 2 / 5;
+  font-size: 2em;
+  font-weight: 200;
+  text-align: center;
+  width: 50%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 @media screen and (max-width: 700px) {
+  .app {
+    font-size: 1em;
+  }
+
+  .time-display-container {
+    margin: 10px;
+    padding: 10px;
+    justify-content: center;
+    text-align: center;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+  }
+
+  .btn-group {
+    display: flex;
+    justify-content: center;
+  }
+
+
+  .time-display-number {
+    font-size: 5em;
+  }
+
+
+  .btn-large {
+    font-size: 1em;
+  }
+
+  .set-time-btn {
+    margin: 5px;
+  }
+
+  body {
+    font-size: 15px;
+  }
+}
+
+
+@media screen and (max-width: 500px) {
+
+   .btn-group {
+    font-size: 1em;
+    flex-wrap: wrap-reverse;
+  } 
+
   .time-display-container {
     grid-gap: 2px;
-    grid-template-columns: 20px 150px 5px 150px 20px;
-    grid-template-rows: 75px 50px 150px 50px; 
-    grid-auto-rows: auto;  
+    grid-template-columns: auto;
+    grid-template-rows: auto;
     align-items: center;
     justify-content: center;
-  } 
-  .btn-large {
+  }
+
+  .btn-large { 
+    min-width: 100%;
+    margin: 10px;
     font-size: 1em;
   }
 
