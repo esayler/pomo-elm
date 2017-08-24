@@ -1,9 +1,12 @@
-module App exposing (main)
+port module App exposing (main)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Time exposing (..)
+
+
+port beep : Bool -> Cmd msg
 
 
 initialTime : Int
@@ -38,7 +41,8 @@ type alias Model =
 
 type Msg
     = Start
-    | Set Int
+    | Beep Time
+    | Set Session
     | Increment TimeUnit
     | Decrement TimeUnit
     | Pause
@@ -55,6 +59,12 @@ type Direction
 type TimeUnit
     = Min
     | Sec
+
+
+type Session
+    = Work
+    | ShortBreak
+    | LongBreak
 
 
 model : Model
@@ -147,7 +157,8 @@ timeEditable : Model -> Html Msg
 timeEditable model =
     input
         [ classList
-            [ ( "time", True )
+            [ ( "time-editable", True )
+            , ( "time", True )
             , ( "time-input", True )
             , ( "warning", model.running && model.currentTime < 10 && model.currentTime /= 0 )
             , ( "done", model.currentTime == 0 )
@@ -170,23 +181,36 @@ timeSelector model =
             [ button
                 [ class "btn set-time-btn"
                 , name "set-work-time"
-                , onClick (Set model.workTime)
+                , onClick (Set Work)
                 ]
-                [ text "25m" ]
+                [ text (sessionToString Work) ]
             , button
                 [ class "btn set-time-btn"
                 , name "set-short-break-time"
-                , onClick (Set model.shortBreakTime)
+                , onClick (Set ShortBreak)
                 ]
-                [ text "5m" ]
+                [ text (sessionToString ShortBreak) ]
             , button
                 [ class "btn set-time-btn"
                 , name "set-long-break-time"
-                , onClick (Set model.longBreakTime)
+                , onClick (Set LongBreak)
                 ]
-                [ text "20m" ]
+                [ text (sessionToString LongBreak) ]
             ]
         ]
+
+
+sessionToString : Session -> String
+sessionToString sessionType =
+    case sessionType of
+        Work ->
+            "25m"
+
+        ShortBreak ->
+            "5m"
+
+        LongBreak ->
+            "20m"
 
 
 displayTime : Model -> List (Html Msg)
@@ -229,10 +253,16 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Start ->
-            ( { model | initialTime = model.currentTime, running = True }, Cmd.none )
+            ( { model | initialTime = model.currentTime, running = True }, beep False )
 
-        Set seconds ->
-            ( { model | initialTime = seconds, currentTime = seconds, running = False }, Cmd.none )
+        Set Work ->
+            ( { model | initialTime = model.workTime, currentTime = model.workTime, running = False }, beep False )
+
+        Set ShortBreak ->
+            ( { model | initialTime = model.shortBreakTime, currentTime = model.shortBreakTime, running = False }, beep False )
+
+        Set LongBreak ->
+            ( { model | initialTime = model.longBreakTime, currentTime = model.longBreakTime, running = False }, beep False )
 
         Increment Sec ->
             ( { model | currentTime = model.currentTime + 1 }, Cmd.none )
@@ -247,7 +277,7 @@ update msg model =
             ( { model | currentTime = model.currentTime - 60 }, Cmd.none )
 
         Reset ->
-            ( { model | currentTime = model.initialTime, running = False }, Cmd.none )
+            ( { model | currentTime = model.initialTime, running = False }, beep False )
 
         Tick time ->
             let
@@ -259,8 +289,14 @@ update msg model =
                         model.currentTime - 1
                     else
                         model.currentTime
+
+                cmd =
+                    if not running && model.currentTime == 0 then
+                        beep True
+                    else
+                        Cmd.none
             in
-            ( { model | currentTime = newTime, running = running }, Cmd.none )
+            ( { model | currentTime = newTime, running = running }, cmd )
 
         Pause ->
             ( { model | running = False }, Cmd.none )
@@ -271,6 +307,9 @@ update msg model =
                     Result.withDefault 0 (String.toInt inputString)
             in
             ( { model | initialTime = newValue, currentTime = newValue }, Cmd.none )
+
+        Beep time ->
+            ( model, beep True )
 
 
 subscriptions : Model -> Sub Msg

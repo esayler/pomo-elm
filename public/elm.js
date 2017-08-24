@@ -8672,103 +8672,6 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$project$App$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
-			case 'Start':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{initialTime: model.currentTime, running: true}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Set':
-				var _p1 = _p0._0;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{initialTime: _p1, currentTime: _p1, running: false}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Increment':
-				if (_p0._0.ctor === 'Sec') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{currentTime: model.currentTime + 1}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{currentTime: model.currentTime + 60}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}
-			case 'Decrement':
-				if (_p0._0.ctor === 'Sec') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{currentTime: model.currentTime - 1}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{currentTime: model.currentTime - 60}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}
-			case 'Reset':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{currentTime: model.initialTime, running: false}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Tick':
-				var running = !_elm_lang$core$Native_Utils.eq(model.currentTime, 0);
-				var newTime = running ? (model.currentTime - 1) : model.currentTime;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{currentTime: newTime, running: running}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Pause':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{running: false}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			default:
-				var newValue = A2(
-					_elm_lang$core$Result$withDefault,
-					0,
-					_elm_lang$core$String$toInt(_p0._0));
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{initialTime: newValue, currentTime: newValue}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-		}
-	});
 var _user$project$App$displayTime = function (model) {
 	var remainingSeconds = A2(_elm_lang$core$Basics_ops['%'], model.currentTime, 60);
 	var mins = (model.currentTime / 60) | 0;
@@ -8878,6 +8781,17 @@ var _user$project$App$displayTime = function (model) {
 		}
 	};
 };
+var _user$project$App$sessionToString = function (sessionType) {
+	var _p0 = sessionType;
+	switch (_p0.ctor) {
+		case 'Work':
+			return '25m';
+		case 'ShortBreak':
+			return '5m';
+		default:
+			return '20m';
+	}
+};
 var _user$project$App$timeButton = F5(
 	function (msg, className, nameString, textString, disable) {
 		return A2(
@@ -8934,8 +8848,8 @@ var _user$project$App$controlButton = F3(
 			});
 	});
 var _user$project$App$messageToString = function (msg) {
-	var _p2 = msg;
-	switch (_p2.ctor) {
+	var _p1 = msg;
+	switch (_p1.ctor) {
 		case 'Start':
 			return 'start';
 		case 'Pause':
@@ -8951,6 +8865,133 @@ var _user$project$App$defaultShortBreakTime = 60 * 5;
 var _user$project$App$defaultWorkTime = 60 * 25;
 var _user$project$App$initialTime = 60 * 25;
 var _user$project$App$model = {initialTime: _user$project$App$initialTime, currentTime: _user$project$App$initialTime, workTime: _user$project$App$defaultWorkTime, shortBreakTime: _user$project$App$defaultShortBreakTime, longBreakTime: _user$project$App$defaultLongBreakTime, running: false};
+var _user$project$App$beep = _elm_lang$core$Native_Platform.outgoingPort(
+	'beep',
+	function (v) {
+		return v;
+	});
+var _user$project$App$update = F2(
+	function (msg, model) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
+			case 'Start':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{initialTime: model.currentTime, running: true}),
+					_1: _user$project$App$beep(false)
+				};
+			case 'Set':
+				switch (_p2._0.ctor) {
+					case 'Work':
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{initialTime: model.workTime, currentTime: model.workTime, running: false}),
+							_1: _user$project$App$beep(false)
+						};
+					case 'ShortBreak':
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{initialTime: model.shortBreakTime, currentTime: model.shortBreakTime, running: false}),
+							_1: _user$project$App$beep(false)
+						};
+					default:
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{initialTime: model.longBreakTime, currentTime: model.longBreakTime, running: false}),
+							_1: _user$project$App$beep(false)
+						};
+				}
+			case 'Increment':
+				if (_p2._0.ctor === 'Sec') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{currentTime: model.currentTime + 1}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{currentTime: model.currentTime + 60}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			case 'Decrement':
+				if (_p2._0.ctor === 'Sec') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{currentTime: model.currentTime - 1}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{currentTime: model.currentTime - 60}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			case 'Reset':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{currentTime: model.initialTime, running: false}),
+					_1: _user$project$App$beep(false)
+				};
+			case 'Tick':
+				var running = !_elm_lang$core$Native_Utils.eq(model.currentTime, 0);
+				var newTime = running ? (model.currentTime - 1) : model.currentTime;
+				var cmd = ((!running) && _elm_lang$core$Native_Utils.eq(model.currentTime, 0)) ? _user$project$App$beep(true) : _elm_lang$core$Platform_Cmd$none;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{currentTime: newTime, running: running}),
+					_1: cmd
+				};
+			case 'Pause':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{running: false}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Change':
+				var newValue = A2(
+					_elm_lang$core$Result$withDefault,
+					0,
+					_elm_lang$core$String$toInt(_p2._0));
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{initialTime: newValue, currentTime: newValue}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$App$beep(true)
+				};
+		}
+	});
 var _user$project$App$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {initialTime: a, currentTime: b, workTime: c, longBreakTime: d, shortBreakTime: e, running: f};
@@ -8966,25 +9007,29 @@ var _user$project$App$timeEditable = function (model) {
 			_0: _elm_lang$html$Html_Attributes$classList(
 				{
 					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'time', _1: true},
+					_0: {ctor: '_Tuple2', _0: 'time-editable', _1: true},
 					_1: {
 						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'time-input', _1: true},
+						_0: {ctor: '_Tuple2', _0: 'time', _1: true},
 						_1: {
 							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'warning',
-								_1: model.running && ((_elm_lang$core$Native_Utils.cmp(model.currentTime, 10) < 0) && (!_elm_lang$core$Native_Utils.eq(model.currentTime, 0)))
-							},
+							_0: {ctor: '_Tuple2', _0: 'time-input', _1: true},
 							_1: {
 								ctor: '::',
 								_0: {
 									ctor: '_Tuple2',
-									_0: 'done',
-									_1: _elm_lang$core$Native_Utils.eq(model.currentTime, 0)
+									_0: 'warning',
+									_1: model.running && ((_elm_lang$core$Native_Utils.cmp(model.currentTime, 10) < 0) && (!_elm_lang$core$Native_Utils.eq(model.currentTime, 0)))
 								},
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'done',
+										_1: _elm_lang$core$Native_Utils.eq(model.currentTime, 0)
+									},
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
@@ -9032,6 +9077,17 @@ var _user$project$App$Increment = function (a) {
 var _user$project$App$Set = function (a) {
 	return {ctor: 'Set', _0: a};
 };
+var _user$project$App$Beep = function (a) {
+	return {ctor: 'Beep', _0: a};
+};
+var _user$project$App$Start = {ctor: 'Start'};
+var _user$project$App$Down = {ctor: 'Down'};
+var _user$project$App$Up = {ctor: 'Up'};
+var _user$project$App$Sec = {ctor: 'Sec'};
+var _user$project$App$Min = {ctor: 'Min'};
+var _user$project$App$LongBreak = {ctor: 'LongBreak'};
+var _user$project$App$ShortBreak = {ctor: 'ShortBreak'};
+var _user$project$App$Work = {ctor: 'Work'};
 var _user$project$App$timeSelector = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -9062,14 +9118,15 @@ var _user$project$App$timeSelector = function (model) {
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$html$Html_Events$onClick(
-										_user$project$App$Set(model.workTime)),
+										_user$project$App$Set(_user$project$App$Work)),
 									_1: {ctor: '[]'}
 								}
 							}
 						},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('25m'),
+							_0: _elm_lang$html$Html$text(
+								_user$project$App$sessionToString(_user$project$App$Work)),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
@@ -9085,14 +9142,15 @@ var _user$project$App$timeSelector = function (model) {
 									_1: {
 										ctor: '::',
 										_0: _elm_lang$html$Html_Events$onClick(
-											_user$project$App$Set(model.shortBreakTime)),
+											_user$project$App$Set(_user$project$App$ShortBreak)),
 										_1: {ctor: '[]'}
 									}
 								}
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('5m'),
+								_0: _elm_lang$html$Html$text(
+									_user$project$App$sessionToString(_user$project$App$ShortBreak)),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
@@ -9108,14 +9166,15 @@ var _user$project$App$timeSelector = function (model) {
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$html$Html_Events$onClick(
-												_user$project$App$Set(model.longBreakTime)),
+												_user$project$App$Set(_user$project$App$LongBreak)),
 											_1: {ctor: '[]'}
 										}
 									}
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('20m'),
+									_0: _elm_lang$html$Html$text(
+										_user$project$App$sessionToString(_user$project$App$LongBreak)),
 									_1: {ctor: '[]'}
 								}),
 							_1: {ctor: '[]'}
@@ -9125,11 +9184,6 @@ var _user$project$App$timeSelector = function (model) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$App$Start = {ctor: 'Start'};
-var _user$project$App$Down = {ctor: 'Down'};
-var _user$project$App$Up = {ctor: 'Up'};
-var _user$project$App$Sec = {ctor: 'Sec'};
-var _user$project$App$Min = {ctor: 'Min'};
 var _user$project$App$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
