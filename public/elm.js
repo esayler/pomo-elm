@@ -8870,6 +8870,16 @@ var _user$project$App$beep = _elm_lang$core$Native_Platform.outgoingPort(
 	function (v) {
 		return v;
 	});
+var _user$project$App$notify = _elm_lang$core$Native_Platform.outgoingPort(
+	'notify',
+	function (v) {
+		return v;
+	});
+var _user$project$App$start = _elm_lang$core$Native_Platform.outgoingPort(
+	'start',
+	function (v) {
+		return v;
+	});
 var _user$project$App$update = F2(
 	function (msg, model) {
 		var _p2 = msg;
@@ -8880,7 +8890,7 @@ var _user$project$App$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{initialTime: model.currentTime, running: true}),
-					_1: _user$project$App$beep(false)
+					_1: _user$project$App$start(true)
 				};
 			case 'Set':
 				switch (_p2._0.ctor) {
@@ -8956,7 +8966,16 @@ var _user$project$App$update = F2(
 			case 'Tick':
 				var running = !_elm_lang$core$Native_Utils.eq(model.currentTime, 0);
 				var newTime = running ? (model.currentTime - 1) : model.currentTime;
-				var cmd = ((!running) && _elm_lang$core$Native_Utils.eq(model.currentTime, 0)) ? _user$project$App$beep(true) : _elm_lang$core$Platform_Cmd$none;
+				var cmd = ((!running) && _elm_lang$core$Native_Utils.eq(model.currentTime, 0)) ? _elm_lang$core$Platform_Cmd$batch(
+					{
+						ctor: '::',
+						_0: _user$project$App$beep(true),
+						_1: {
+							ctor: '::',
+							_0: _user$project$App$notify('Pomo-elm finished!'),
+							_1: {ctor: '[]'}
+						}
+					}) : _elm_lang$core$Platform_Cmd$none;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -8972,7 +8991,7 @@ var _user$project$App$update = F2(
 						{running: false}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'Change':
+			default:
 				var newValue = A2(
 					_elm_lang$core$Result$withDefault,
 					0,
@@ -8983,12 +9002,6 @@ var _user$project$App$update = F2(
 						model,
 						{initialTime: newValue, currentTime: newValue}),
 					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			default:
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$App$beep(true)
 				};
 		}
 	});
@@ -9076,9 +9089,6 @@ var _user$project$App$Increment = function (a) {
 };
 var _user$project$App$Set = function (a) {
 	return {ctor: 'Set', _0: a};
-};
-var _user$project$App$Beep = function (a) {
-	return {ctor: 'Beep', _0: a};
 };
 var _user$project$App$Start = {ctor: 'Start'};
 var _user$project$App$Down = {ctor: 'Down'};

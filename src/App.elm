@@ -9,6 +9,12 @@ import Time exposing (..)
 port beep : Bool -> Cmd msg
 
 
+port notify : String -> Cmd msg
+
+
+port start : Bool -> Cmd msg
+
+
 initialTime : Int
 initialTime =
     60 * 25
@@ -41,7 +47,6 @@ type alias Model =
 
 type Msg
     = Start
-    | Beep Time
     | Set Session
     | Increment TimeUnit
     | Decrement TimeUnit
@@ -253,7 +258,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Start ->
-            ( { model | initialTime = model.currentTime, running = True }, beep False )
+            ( { model | initialTime = model.currentTime, running = True }, start True )
 
         Set Work ->
             ( { model | initialTime = model.workTime, currentTime = model.workTime, running = False }, beep False )
@@ -292,7 +297,7 @@ update msg model =
 
                 cmd =
                     if not running && model.currentTime == 0 then
-                        beep True
+                        Cmd.batch [ beep True, notify "Pomo-elm finished!" ]
                     else
                         Cmd.none
             in
@@ -307,9 +312,6 @@ update msg model =
                     Result.withDefault 0 (String.toInt inputString)
             in
             ( { model | initialTime = newValue, currentTime = newValue }, Cmd.none )
-
-        Beep time ->
-            ( model, beep True )
 
 
 subscriptions : Model -> Sub Msg

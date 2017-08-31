@@ -11,35 +11,81 @@
   <script src="elm.js"></script>
   <script>
     var app = Elm.App.fullscreen()
+    console.log("app start: notification permission: " + Notification.permission)
+
     var context = new (window.AudioContext || window.webkitAudioContext)()
 
-    function makeBeeper(context) {
-      return {
-        context: context,
-        oscillator: null,
-        play: function () {
-          this.oscillator = context.createOscillator()
-          this.oscillator.connect(context.destination);
-          this.oscillator.frequency.value = 440;
-          this.oscillator.start(0);
+    function spawnNotification(body, icon, title) {
+      var options = {
+        body,
+        icon,
+      }
 
+      var n = new Notification(title, options)
+    }
+
+    function Sound(context) {
+      return {
+        context: null,
+        oscillator: null,
+        gainNode: null,
+
+        init() {
+          this.context = context
+          this.oscillator = this.context.createOscillator()
+          this.gainNode = this.context.createGain()
+
+          this.oscillator.connect(this.context.destination)
+          this.gainNode.connect(this.context.destination)
+
+          // this.oscillator.type = 'sine'
         },
-        stop: function () {
+        play: function (freq) {
+          this.init()
+          this.oscillator.frequency.value = freq;
+          this.gainNode.gain.setValueAtTime(1, this.context.currentTime)
+
+          this.oscillator.start();
+        },
+        stop: function (time) {
+          if (this.gainNode) {
+            this.gainNode.gain.exponentialRampToValueAtTime(0.001, time + 1)
+          }
+
           if (this.oscillator) {
-            this.oscillator.stop()
+            this.oscillator.stop(time + 1)
           }
         }
       };
     }
 
-    var beeper = makeBeeper(context)
+    var beeper = Sound(context)
 
     app.ports.beep.subscribe(function(play) {
       if (play) {
-        beeper.play()
+        beeper.play(500)
       } else if (!play) {
-        beeper.stop()
+        beeper.stop(1)
       }
+    })
+
+    app.ports.start.subscribe(function(started) {
+      console.log(Notification.permission)
+      if (started && Notification.permission === 'default') {
+        Notification.requestPermission().then(function (result) {
+          console.log(result);
+        })
+      }
+      
+    })
+
+    app.ports.notify.subscribe(function(title) {
+      console.log("app port notify: notification permission: " + Notification.permission)
+      if (Notification.permission == 'granted') {
+        console.log('spawnNotification')
+        spawnNotification("", null, title)
+      }
+
     })
     
     if (context) {
